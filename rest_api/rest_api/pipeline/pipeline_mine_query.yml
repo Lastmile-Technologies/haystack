@@ -1,0 +1,45 @@
+components:
+- name: DocumentStore2
+  params:
+    embedding_field: emb
+    excluded_meta_data:
+    - emb
+    index: tutorial5_docs
+    label_index: tutorial5_labels
+  type: ElasticsearchDocumentStore
+- name: Retriever
+  params:
+    document_store: DocumentStore2
+    embed_title: false
+    max_seq_len_passage: 400
+    passage_embedding_model: voidful/dpr-ctx_encoder-bert-base-multilingual
+    query_embedding_model: voidful/dpr-question_encoder-bert-base-multilingual
+  type: DensePassageRetriever
+- name: Retriever_elastic
+  params:
+    document_store: DocumentStore2
+  type: BM25Retriever
+- name: JoinResults
+  params: {}
+  type: JoinDocuments
+- name: Reader
+  params:
+    model_name_or_path: drive/MyDrive/dataNLP/models/reader_mydataset3
+  type: FARMReader
+pipelines:
+- name: query
+  nodes:
+  - inputs:
+    - Query
+    name: Retriever
+  - inputs:
+    - Query
+    name: Retriever_elastic
+  - inputs:
+    - Retriever_elastic
+    - Retriever
+    name: JoinResults
+  - inputs:
+    - JoinResults
+    name: Reader
+version: 1.22.1

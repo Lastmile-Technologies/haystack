@@ -1,0 +1,57 @@
+components:
+- name: TextConverter
+  params: {}
+  type: TextConverter
+- name: Preprocessor
+  params:
+    clean_empty_lines: false
+    clean_whitespace: false
+    split_length: 400
+    split_respect_sentence_boundary: false
+  type: PreProcessor
+- name: DocumentStore2
+  params:
+    embedding_field: emb
+    excluded_meta_data:
+    - emb
+    index: tutorial5_docs
+    label_index: tutorial5_labels
+  type: ElasticsearchDocumentStore
+- name: Retriever_elastic
+  params:
+    document_store: DocumentStore2
+  type: BM25Retriever
+- name: Retriever
+  params:
+    document_store: DocumentStore2
+    embed_title: false
+    max_seq_len_passage: 400
+    passage_embedding_model: voidful/dpr-ctx_encoder-bert-base-multilingual
+    query_embedding_model: voidful/dpr-question_encoder-bert-base-multilingual
+  type: DensePassageRetriever
+- name: JoinResults
+  params: {}
+  type: JoinDocuments
+pipelines:
+- name: indexing
+  nodes:
+  - inputs:
+    - File
+    name: TextConverter
+  - inputs:
+    - TextConverter
+    name: Preprocessor
+  - inputs:
+    - Preprocessor.output_1
+    name: Retriever_elastic
+  - inputs:
+    - Preprocessor.output_1
+    name: Retriever
+  - inputs:
+    - Retriever_elastic
+    - Retriever
+    name: JoinResults
+  - inputs:
+    - JoinResults
+    name: DocumentStore2
+version: 1.22.1
