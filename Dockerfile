@@ -9,6 +9,7 @@ USER root
 ## Create pipelines directory
 RUN mkdir -p /opt/models
 COPY models /opt/models
+COPY rest_api/rest_api/controller /opt/venv/lib/python3.10/site-packages/rest_api/controller
 
 #
 ## Copy pipelines config file

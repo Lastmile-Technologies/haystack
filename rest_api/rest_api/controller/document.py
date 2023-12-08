@@ -1,7 +1,7 @@
 from typing import Optional, List
 
 import logging
-
+import os
 from fastapi import FastAPI, APIRouter
 from haystack.document_stores import BaseDocumentStore
 from haystack.schema import Document
@@ -21,8 +21,8 @@ app: FastAPI = get_app()
 document_store: BaseDocumentStore = get_pipelines().get("document_store", None)
 
 
-@router.post("/documents/get_by_filters", response_model=List[Document], response_model_exclude_none=True)
-def get_documents(filters: FilterRequest, index: Optional[str] = None):
+@router.post("/documents/get_by_filters", response_model=List[Document], status_code=200)
+def get_documents():
     """
     This endpoint allows you to retrieve documents contained in your document store.
     You can filter the documents to retrieve by metadata (like the document's name),
@@ -56,9 +56,11 @@ def delete_documents(filters: FilterRequest, index: Optional[str] = None):
     document_store.delete_documents(filters=filters.filters, index=index)
     return True
 
-@router.post("/chat", response_class=HTMLResponse)
-def chatIndex(filters: FilterRequest, index: Optional[str] = None):
-    with open("index.html", "r") as file:
+@router.get("/chat", response_class=HTMLResponse)
+def chatIndex():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    html_file_path = os.path.join(script_dir, "index.html")
+    with open(html_file_path, "r") as file:
         html_content = file.read()
 
-    return True
+    return HTMLResponse(content=html_content)
