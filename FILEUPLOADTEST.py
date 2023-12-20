@@ -2,7 +2,8 @@ import requests
 import os
 url = 'http://localhost:8000/file-upload'
 headers = {'Accept': 'application/json'}
-folder_path= 'uploadDocs'
+# folder_path= 'uploadDocs'
+folder_path= 'pdfOutput'
 files = {}
 for filename in os.listdir(folder_path):
     file_path = os.path.join(folder_path, filename)
